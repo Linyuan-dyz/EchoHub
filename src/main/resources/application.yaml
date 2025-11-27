@@ -1,0 +1,91 @@
+server:
+  port: 8080
+  error:
+    whitelabel:
+      enabled: false
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: Community
+  datasource:
+    url: jdbc:mysql://${Community.mysql.ip}:${Community.mysql.port}/${Community.mysql.db}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: ${Community.mysql.username}
+    password: ${Community.mysql.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 3
+      maximum-pool-size: 10
+      max-lifetime: 30000   #不能小于30秒，否则默认回到1800秒
+      connection-test-query: SELECT 1
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  data:
+    redis:
+      # Redis服务器地址
+      host: ${Community.redis.host}
+      # Redis服务器端口号
+      port: ${Community.redis.port:6379}
+      # 使用的数据库索引，默认是0
+      database: 0
+      # 连接超时时间
+      timeout: 1800000
+      password: ${Community.redis.password}
+  mail:
+    host: smtp.sina.com
+    port: 587
+    username: 1920ww10@sina.com
+    password: 1920ww10
+    protocol: smtp
+    ssl:
+      enabled: true
+  elasticsearch:
+    uris: http://localhost:9200   # ← 改成你的地址（注意 http 而不是 https）
+    # username/password 行删掉或留空，都不会用到
+    connection-timeout: 2s
+    socket-timeout: 5s
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      acks: all
+      retries: 5
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        enable.idempotence: true
+        spring.json.add.type.headers: false
+    consumer:
+      group-id: notification-service
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.nowcoder.community.domain.entity.EventNotice
+        spring.json.trusted.packages: "*"
+      auto-offset-reset: earliest
+      max-poll-records: 50
+    listener:
+      ack-mode: RECORD
+      missing-topics-fatal: false
+      concurrency: 3
+
+## 自定义业务属性
+#app:
+#  kafka:
+#    topic:
+#      postInteraction: post.interaction
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+logging:
+  level:
+    web: debug
+    org:
+      springframework:
+        http:
+          converter=DEBUG:

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nowcoder.community.mapper.ReplyDetailsMapper">
+
+    <!-- 建议开启全局 map-underscore-to-camel-case，或显式写别名 -->
+    <resultMap id="ReplyContentVOMap" type="com.nowcoder.community.domain.vo.ReplyContentVO">
+        <id property="rpid" column="rpid"/>
+        <result property="objId" column="obj_id"/>
+        <result property="rootRpid" column="root_rpid"/>
+        <result property="parentRpid" column="parent_rpid"/>
+        <result property="floor" column="floor"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="replyCount" column="reply_count"/>
+        <result property="userId" column="user_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="version" column="version"/>
+        <result property="content" column="content"/>
+    </resultMap>
+
+    <select id="listByRpidIn" resultMap="ReplyContentVOMap">
+        SELECT  ri.rpid, ri.obj_id, ri.root_rpid, ri.parent_rpid,
+        ri.floor, ri.like_count, ri.reply_count, ri.user_id,
+        ri.version, ri.create_time, rc.content
+        FROM reply_index ri
+        JOIN reply_content rc ON rc.rpid = ri.rpid
+        WHERE ri.rpid IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>
